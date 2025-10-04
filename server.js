@@ -20,10 +20,10 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc));
-app.use("*", (req, res) => {
+
+app.all("/*", (req, res) => {
   res.status(404).json({ error: "Page does not exist" });
 });
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
