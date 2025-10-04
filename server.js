@@ -21,7 +21,8 @@ app.get("/", (req, res) => {
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
-app.all("/*", (req, res) => {
+
+app.use((req, res) => {
   res.status(404).json({ error: "Page does not exist" });
 });
 
