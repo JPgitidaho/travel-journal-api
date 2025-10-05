@@ -5,6 +5,7 @@ import connectDB from "./src/config/db.js";
 import swaggerDoc from "./src/config/swagger.js";
 import swaggerUi from "swagger-ui-express";
 import usersRoutes from "./src/routes/users.js";
+import tripsRoutes from "./src/routes/trips.js";
 
 dotenv.config();
 connectDB();
@@ -12,6 +13,7 @@ connectDB();
 const app = express();
 app.use(cors({ origin: process.env.CORS_ORIGIN }));
 app.use(express.json());
+app.use("/trips", tripsRoutes);
 
 app.use("/users", usersRoutes);
 

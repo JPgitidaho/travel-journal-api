@@ -1,223 +1,329 @@
-export default {
-  openapi: "3.0.0",
-  info: {
-    title: "Travel Journal API",
-    version: "1.0.0",
-    description: "API for managing travel journals with users, trips, places, and experiences"
-  },
-  servers: [
-    { url: "http://localhost:3000", description: "Local server" },
-    { url: "https://your-render-url.onrender.com", description: "Render server" }
-  ],
-  components: {
-    securitySchemes: {
-      bearerAuth: {
-        type: "http",
-        scheme: "bearer",
-        bearerFormat: "JWT"
-      }
+import swaggerJSDoc from "swagger-jsdoc";
+
+const options = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Travel Journal API",
+      version: "1.0.0",
+      description: "API for managing users and travel journals"
     },
-    schemas: {
-      User: {
-        type: "object",
-        properties: {
-          _id: { type: "string" },
-          username: { type: "string", example: "juanita" },
-          email: { type: "string", example: "juanita@example.com" },
-          password: { type: "string", example: "StrongPass123!" }
-        },
-        required: ["username", "email", "password"]
+    servers: [
+      {
+        url: "http://localhost:3000",
+        description: "Local server"
       },
-      Trip: {
-        type: "object",
-        properties: {
-          _id: { type: "string" },
-          title: { type: "string", example: "Summer in Spain" },
-          description: { type: "string", example: "Backpacking across Barcelona and Madrid" },
-          startDate: { type: "string", format: "date" },
-          endDate: { type: "string", format: "date" },
-          user: { type: "string" }
-        },
-        required: ["title", "startDate", "endDate", "user"]
+      
+{
+  url: "https://travel-journal-api.onrender.com",
+  description: "Production server"
+}
+
+      
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT"
+        }
       },
-      Place: {
-        type: "object",
-        properties: {
-          _id: { type: "string" },
-          trip: { type: "string" },
-          name: { type: "string", example: "La Sagrada Familia" },
-          location: { type: "string", example: "Barcelona" },
-          notes: { type: "string", example: "Amazing architecture" }
-        },
-        required: ["trip", "name", "location"]
-      },
-      Experience: {
-        type: "object",
-        properties: {
-          _id: { type: "string" },
-          place: { type: "string" },
-          text: { type: "string", example: "Best paella ever!" },
-          photoUrl: { type: "string" }
-        },
-        required: ["place", "text"]
-      }
-    }
-  },
-  paths: {
-    "/users/register": {
-      post: {
-        tags: ["Users"],
-        summary: "Register a new user",
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": { schema: { $ref: "#/components/schemas/User" } }
+      schemas: {
+        User: {
+          type: "object",
+          properties: {
+            username: { type: "string", example: "juanita" },
+            email: { type: "string", example: "juanita@example.com" },
+            password: { type: "string", example: "StrongPass123!" }
           }
         },
-        responses: {
-          201: { description: "User registered" },
-          400: { description: "Invalid input" },
-          409: { description: "User already exists" }
+        Trip: {
+          type: "object",
+          properties: {
+            title: { type: "string", example: "Trip to Patagonia" },
+            description: { type: "string", example: "Exploring the mountains and lakes" },
+            startDate: { type: "string", format: "date", example: "2025-10-10" },
+            endDate: { type: "string", format: "date", example: "2025-10-25" }
+          }
         }
       }
     },
-    "/users/login": {
-      post: {
-        tags: ["Users"],
-        summary: "Login and get JWT",
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  email: { type: "string", example: "juanita@example.com" },
-                  password: { type: "string", example: "StrongPass123!" }
-                },
-                required: ["email", "password"]
+    security: [{ bearerAuth: [] }],
+    paths: {
+      "/users/register": {
+        post: {
+          summary: "Register a new user",
+          tags: ["Users"],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": { schema: { $ref: "#/components/schemas/User" } }
+            }
+          },
+          responses: {
+            201: {
+              description: "User registered",
+              content: {
+                "application/json": {
+                  example: {
+                    message: "User registered",
+                    user: {
+                      _id: "66f123abc",
+                      username: "juanita",
+                      email: "juanita@example.com"
+                    }
+                  }
+                }
+              }
+            },
+            400: { description: "Bad request" },
+            409: { description: "User already exists" }
+          }
+        }
+      },
+      "/users/login": {
+        post: {
+          summary: "Login user",
+          tags: ["Users"],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    email: { type: "string", example: "juanita@example.com" },
+                    password: { type: "string", example: "StrongPass123!" }
+                  }
+                }
               }
             }
+          },
+          responses: {
+            200: {
+              description: "User logged in",
+              content: {
+                "application/json": {
+                  example: {
+                    token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    user: {
+                      id: "66f123abc",
+                      username: "juanita",
+                      email: "juanita@example.com"
+                    }
+                  }
+                }
+              }
+            },
+            400: { description: "Invalid credentials" },
+            401: { description: "Unauthorized" }
+          }
+        }
+      },
+      "/users/profile": {
+        get: {
+          summary: "Get user profile",
+          tags: ["Users"],
+          security: [{ bearerAuth: [] }],
+          responses: {
+            200: {
+              description: "User profile",
+              content: {
+                "application/json": {
+                  example: {
+                    id: "66f123abc",
+                    username: "juanita",
+                    email: "juanita@example.com"
+                  }
+                }
+              }
+            },
+            401: { description: "Unauthorized" },
+            404: { description: "User not found" }
           }
         },
-        responses: {
-          200: { description: "Login successful, returns JWT" },
-          400: { description: "Invalid credentials" },
-          401: { description: "Unauthorized" }
-        }
-      }
-    },
-    "/users/profile": {
-      get: {
-        tags: ["Users"],
-        summary: "Get user profile",
-        security: [{ bearerAuth: [] }],
-        responses: {
-          200: { description: "User profile returned" },
-          401: { description: "Unauthorized" }
-        }
-      },
-      put: {
-        tags: ["Users"],
-        summary: "Update user profile",
-        security: [{ bearerAuth: [] }],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": { schema: { $ref: "#/components/schemas/User" } }
+        put: {
+          summary: "Update user profile",
+          tags: ["Users"],
+          security: [{ bearerAuth: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/User" }
+              }
+            }
+          },
+          responses: {
+            200: {
+              description: "User updated",
+              content: {
+                "application/json": {
+                  example: {
+                    message: "User updated",
+                    user: {
+                      id: "66f123abc",
+                      username: "juanita updated",
+                      email: "juanita@example.com"
+                    }
+                  }
+                }
+              }
+            },
+            401: { description: "Unauthorized" },
+            404: { description: "User not found" }
           }
         },
-        responses: {
-          200: { description: "User updated" },
-          400: { description: "Invalid input" },
-          401: { description: "Unauthorized" }
+        delete: {
+          summary: "Delete user profile",
+          tags: ["Users"],
+          security: [{ bearerAuth: [] }],
+          responses: {
+            200: { description: "User deleted" },
+            401: { description: "Unauthorized" },
+            404: { description: "User not found" }
+          }
         }
       },
-      delete: {
-        tags: ["Users"],
-        summary: "Delete user profile",
-        security: [{ bearerAuth: [] }],
-        responses: {
-          200: { description: "User deleted" },
-          401: { description: "Unauthorized" },
-          404: { description: "User not found" }
-        }
-      }
-    },
-    "/trips": {
-      post: {
-        tags: ["Trips"],
-        summary: "Create a new trip",
-        security: [{ bearerAuth: [] }],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": { schema: { $ref: "#/components/schemas/Trip" } }
+      "/trips": {
+        post: {
+          summary: "Create a new trip",
+          tags: ["Trips"],
+          security: [{ bearerAuth: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": { schema: { $ref: "#/components/schemas/Trip" } }
+            }
+          },
+          responses: {
+            201: {
+              description: "Trip created",
+              content: {
+                "application/json": {
+                  example: {
+                    message: "Trip created",
+                    trip: {
+                      _id: "66f123xyz",
+                      title: "Trip to Patagonia",
+                      description: "Exploring the mountains and lakes",
+                      startDate: "2025-10-10",
+                      endDate: "2025-10-25",
+                      user: "66f123abc"
+                    }
+                  }
+                }
+              }
+            },
+            400: { description: "Bad request" }
           }
         },
-        responses: {
-          201: { description: "Trip created" },
-          400: { description: "Invalid input" },
-          401: { description: "Unauthorized" }
+        get: {
+          summary: "Get all trips for user",
+          tags: ["Trips"],
+          security: [{ bearerAuth: [] }],
+          responses: {
+            200: {
+              description: "List of trips",
+              content: {
+                "application/json": {
+                  example: [
+                    {
+                      _id: "66f123xyz",
+                      title: "Trip to Patagonia",
+                      description: "Exploring the mountains and lakes",
+                      startDate: "2025-10-10",
+                      endDate: "2025-10-25",
+                      user: "66f123abc"
+                    }
+                  ]
+                }
+              }
+            },
+            401: { description: "Unauthorized" }
+          }
         }
       },
-      get: {
-        tags: ["Trips"],
-        summary: "Get all trips of the logged user",
-        security: [{ bearerAuth: [] }],
-        responses: {
-          200: { description: "List of trips" },
-          401: { description: "Unauthorized" }
-        }
-      }
-    },
-    "/trips/{id}": {
-      get: {
-        tags: ["Trips"],
-        summary: "Get trip by ID",
-        security: [{ bearerAuth: [] }],
-        parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" } }
-        ],
-        responses: {
-          200: { description: "Trip found" },
-          401: { description: "Unauthorized" },
-          404: { description: "Trip not found" }
-        }
-      },
-      put: {
-        tags: ["Trips"],
-        summary: "Update trip by ID",
-        security: [{ bearerAuth: [] }],
-        parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" } }
-        ],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": { schema: { $ref: "#/components/schemas/Trip" } }
+      "/trips/{id}": {
+        get: {
+          summary: "Get a trip by ID",
+          tags: ["Trips"],
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            { name: "id", in: "path", required: true, schema: { type: "string" } }
+          ],
+          responses: {
+            200: {
+              description: "Trip found",
+              content: {
+                "application/json": {
+                  example: {
+                    _id: "66f123xyz",
+                    title: "Trip to Patagonia",
+                    description: "Exploring the mountains and lakes",
+                    startDate: "2025-10-10",
+                    endDate: "2025-10-25",
+                    user: "66f123abc"
+                  }
+                }
+              }
+            },
+            404: { description: "Trip not found" }
           }
         },
-        responses: {
-          200: { description: "Trip updated" },
-          400: { description: "Invalid input" },
-          401: { description: "Unauthorized" },
-          404: { description: "Trip not found" }
-        }
-      },
-      delete: {
-        tags: ["Trips"],
-        summary: "Delete trip by ID",
-        security: [{ bearerAuth: [] }],
-        parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" } }
-        ],
-        responses: {
-          200: { description: "Trip deleted" },
-          401: { description: "Unauthorized" },
-          404: { description: "Trip not found" }
+        put: {
+          summary: "Update a trip by ID",
+          tags: ["Trips"],
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            { name: "id", in: "path", required: true, schema: { type: "string" } }
+          ],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": { schema: { $ref: "#/components/schemas/Trip" } }
+            }
+          },
+          responses: {
+            200: {
+              description: "Trip updated",
+              content: {
+                "application/json": {
+                  example: {
+                    message: "Trip updated",
+                    trip: {
+                      _id: "66f123xyz",
+                      title: "Trip to Torres del Paine",
+                      description: "Hiking adventure",
+                      startDate: "2025-11-01",
+                      endDate: "2025-11-15",
+                      user: "66f123abc"
+                    }
+                  }
+                }
+              }
+            },
+            404: { description: "Trip not found" }
+          }
+        },
+        delete: {
+          summary: "Delete a trip by ID",
+          tags: ["Trips"],
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            { name: "id", in: "path", required: true, schema: { type: "string" } }
+          ],
+          responses: {
+            200: { description: "Trip deleted" },
+            404: { description: "Trip not found" }
+          }
         }
       }
     }
-  }
+  },
+  apis: []
 };
+
+const swaggerSpec = swaggerJSDoc(options);
+export default swaggerSpec;
