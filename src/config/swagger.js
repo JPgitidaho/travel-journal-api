@@ -8,19 +8,16 @@ const options = {
       version: "1.0.0",
       description: "API for managing users and travel journals"
     },
-    servers: [
-      {
-        url: "http://localhost:3000",
-        description: "Local server"
-      },
-      
-{
-  url: "https://travel-journal-api.onrender.com",
-  description: "Production server"
-}
-
-      
-    ],
+servers: [
+  {
+    url: "http://localhost:3000",
+    description: "Local server"
+  },
+  {
+    url: "https://travel-journal-api-pc03.onrender.com",
+    description: "Render server"
+  }
+],
     components: {
       securitySchemes: {
         bearerAuth: {
