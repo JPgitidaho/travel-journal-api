@@ -65,7 +65,6 @@ const options = {
     },
     security: [{ bearerAuth: [] }],
     paths: {
-      
       "/users/register": {
         post: {
           summary: "Register a new user",
@@ -142,8 +141,6 @@ const options = {
           }
         }
       },
-
-    
       "/trips": {
         post: {
           summary: "Create a new trip",
@@ -164,7 +161,10 @@ const options = {
           summary: "Get all trips for user",
           tags: ["Trips"],
           security: [{ bearerAuth: [] }],
-          responses: { 200: { description: "List of trips" }, 401: { description: "Unauthorized" } }
+          responses: {
+            200: { description: "List of trips" },
+            401: { description: "Unauthorized" }
+          }
         }
       },
       "/trips/{id}": {
@@ -173,7 +173,10 @@ const options = {
           tags: ["Trips"],
           security: [{ bearerAuth: [] }],
           parameters: [{ name: "id", in: "path", required: true }],
-          responses: { 200: { description: "Trip found" }, 404: { description: "Trip not found" } }
+          responses: {
+            200: { description: "Trip found" },
+            404: { description: "Trip not found" }
+          }
         },
         put: {
           summary: "Update a trip by ID",
@@ -186,17 +189,22 @@ const options = {
               "application/json": { schema: { $ref: "#/components/schemas/Trip" } }
             }
           },
-          responses: { 200: { description: "Trip updated" }, 404: { description: "Trip not found" } }
+          responses: {
+            200: { description: "Trip updated" },
+            404: { description: "Trip not found" }
+          }
         },
         delete: {
           summary: "Delete a trip by ID",
           tags: ["Trips"],
           security: [{ bearerAuth: [] }],
           parameters: [{ name: "id", in: "path", required: true }],
-          responses: { 200: { description: "Trip deleted" }, 404: { description: "Trip not found" } }
+          responses: {
+            200: { description: "Trip deleted" },
+            404: { description: "Trip not found" }
+          }
         }
       },
-
       "/destinations": {
         post: {
           summary: "Create a new destination",
@@ -256,8 +264,6 @@ const options = {
           }
         }
       },
-
-      
       "/journals": {
         post: {
           summary: "Create a new journal entry",
@@ -319,6 +325,29 @@ const options = {
           responses: {
             200: { description: "Journal deleted" },
             404: { description: "Journal not found" }
+          }
+        }
+      },
+      "/summary/all": {
+        get: {
+          summary: "Get all collections in one response",
+          tags: ["Summary"],
+          security: [{ bearerAuth: [] }],
+          responses: {
+            200: {
+              description: "Aggregated data",
+              content: {
+                "application/json": {
+                  example: {
+                    trips: [{ _id: "1", title: "Trip A" }],
+                    destinations: [{ _id: "2", name: "Torres del Paine" }],
+                    journals: [{ _id: "3", title: "Day 1" }]
+                  }
+                }
+              }
+            },
+            401: { description: "Unauthorized" },
+            500: { description: "Server error" }
           }
         }
       }
