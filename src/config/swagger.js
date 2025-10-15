@@ -1,4 +1,4 @@
-import swaggerJSDoc from "swagger-jsdoc";
+import swaggerJSDoc from "swagger-jsdoc"
 
 const options = {
   definition: {
@@ -327,34 +327,11 @@ const options = {
             404: { description: "Journal not found" }
           }
         }
-      },
-      "/summary/all": {
-        get: {
-          summary: "Get all collections in one response",
-          tags: ["Summary"],
-          security: [{ bearerAuth: [] }],
-          responses: {
-            200: {
-              description: "Aggregated data",
-              content: {
-                "application/json": {
-                  example: {
-                    trips: [{ _id: "1", title: "Trip A" }],
-                    destinations: [{ _id: "2", name: "Torres del Paine" }],
-                    journals: [{ _id: "3", title: "Day 1" }]
-                  }
-                }
-              }
-            },
-            401: { description: "Unauthorized" },
-            500: { description: "Server error" }
-          }
-        }
       }
     }
   },
   apis: []
-};
+}
 
-const swaggerSpec = swaggerJSDoc(options);
-export default swaggerSpec;
+const swaggerSpec = swaggerJSDoc(options)
+export default swaggerSpec
