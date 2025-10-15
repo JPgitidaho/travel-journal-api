@@ -8,7 +8,6 @@ import usersRoutes from "./src/routes/users.js";
 import tripsRoutes from "./src/routes/trips.js";
 import destinationsRoutes from "./src/routes/destinations.js";
 import journalsRoutes from "./src/routes/journals.js";
-import summaryRoutes from "./routes/summary.js"
 
 
 
@@ -22,7 +21,6 @@ app.use(express.json());
 app.use("/trips", tripsRoutes);
 app.use("/destinations", destinationsRoutes);
 app.use("/journals", journalsRoutes);
-app.use("/summary", summaryRoutes)
 
 app.use("/users", usersRoutes);
 
