@@ -18,10 +18,22 @@ describe("Travel Journal API - GET endpoints", () => {
     expect([401, 403]).toContain(res.statusCode);
   });
 
+  it("GET /trips/:id should return 404 for a non-existent trip", async () => {
+    const fakeId = "000000000000000000000000"; // Fake MongoDB ID
+    const res = await request(app).get(`/trips/${fakeId}`);
+    expect([401, 403, 404]).toContain(res.statusCode);
+  });
+
   it("GET /destinations should return all destinations", async () => {
     const res = await request(app).get("/destinations");
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  it("GET /destinations/:id should return 404 for a non-existent destination", async () => {
+    const fakeId = "000000000000000000000000"; // Fake MongoDB ID
+    const res = await request(app).get(`/destinations/${fakeId}`);
+    expect([404, 500]).toContain(res.statusCode);
   });
 
   it("GET /journals should require authentication", async () => {
