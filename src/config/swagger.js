@@ -1,23 +1,28 @@
-import swaggerJSDoc from "swagger-jsdoc"
+
+import swaggerJSDoc from "swagger-jsdoc";
 
 const options = {
   definition: {
     openapi: "3.0.0",
+
     info: {
       title: "Travel Journal API",
       version: "2.0.0",
-      description: "API for managing users, trips, destinations and travel journals"
+      description:
+        "API for managing users, trips, destinations and travel journals"
     },
+
     servers: [
       {
-        url: "http://localhost:3000",
-        description: "Local server"
+        url: "https://travel-journal-api-pc03.onrender.com",
+        description: "Production server - Render"
       },
       {
-        url: "https://travel-journal-api-pc03.onrender.com",
-        description: "Render server"
+        url: "http://localhost:3000",
+        description: "Local development server"
       }
     ],
+
     components: {
       securitySchemes: {
         bearerAuth: {
@@ -26,312 +31,675 @@ const options = {
           bearerFormat: "JWT"
         }
       },
+
       schemas: {
         User: {
           type: "object",
+          required: ["username", "email", "password"],
           properties: {
-            username: { type: "string", example: "juanita" },
-            email: { type: "string", example: "juanita@example.com" },
-            password: { type: "string", example: "StrongPass123!" }
+            username: {
+              type: "string",
+              example: "usuario_prueba"
+            },
+            email: {
+              type: "string",
+              format: "email",
+              example: "prueba@example.com"
+            },
+            password: {
+              type: "string",
+              format: "password",
+              minLength: 8,
+              writeOnly: true,
+              example: "ClaveSegura2026!"
+            }
           }
         },
+
+        PublicUser: {
+          type: "object",
+          properties: {
+            id: {
+              type: "string",
+              example: "507f1f77bcf86cd799439011"
+            },
+            username: {
+              type: "string",
+              example: "usuario_prueba"
+            },
+            email: {
+              type: "string",
+              format: "email",
+              example: "prueba@example.com"
+            }
+          }
+        },
+
         Trip: {
           type: "object",
           properties: {
-            title: { type: "string", example: "Trip to Patagonia" },
-            description: { type: "string", example: "Exploring the mountains and lakes" },
-            startDate: { type: "string", format: "date", example: "2025-10-10" },
-            endDate: { type: "string", format: "date", example: "2025-10-25" }
+            title: {
+              type: "string",
+              example: "Trip to Patagonia"
+            },
+            description: {
+              type: "string",
+              example: "Exploring the mountains and lakes"
+            },
+            startDate: {
+              type: "string",
+              format: "date",
+              example: "2025-10-10"
+            },
+            endDate: {
+              type: "string",
+              format: "date",
+              example: "2025-10-25"
+            }
           }
         },
+
         Destination: {
           type: "object",
           properties: {
-            name: { type: "string", example: "Torres del Paine" },
-            country: { type: "string", example: "Chile" },
-            description: { type: "string", example: "National park known for its mountains and lakes" },
-            image: { type: "string", example: "https://example.com/torres.jpg" }
+            name: {
+              type: "string",
+              example: "Torres del Paine"
+            },
+            country: {
+              type: "string",
+              example: "Chile"
+            },
+            description: {
+              type: "string",
+              example: "National park known for its mountains and lakes"
+            },
+            image: {
+              type: "string",
+              example: "https://example.com/torres.jpg"
+            }
           }
         },
+
         Journal: {
           type: "object",
           properties: {
-            title: { type: "string", example: "Day 1 in Patagonia" },
-            content: { type: "string", example: "We started hiking early in the morning..." },
-            date: { type: "string", format: "date", example: "2025-10-12" }
+            title: {
+              type: "string",
+              example: "Day 1 in Patagonia"
+            },
+            content: {
+              type: "string",
+              example: "We started hiking early in the morning..."
+            },
+            date: {
+              type: "string",
+              format: "date",
+              example: "2025-10-12"
+            }
           }
         }
       }
     },
-    security: [{ bearerAuth: [] }],
+
     paths: {
       "/users/register": {
         post: {
           summary: "Register a new user",
           tags: ["Users"],
+          security: [],
+
           requestBody: {
             required: true,
             content: {
-              "application/json": { schema: { $ref: "#/components/schemas/User" } }
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/User"
+                }
+              }
             }
           },
+
           responses: {
-            201: { description: "User registered" },
-            400: { description: "Bad request" },
-            409: { description: "User already exists" }
+            201: {
+              description: "User registered successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      message: {
+                        type: "string",
+                        example: "User registered"
+                      },
+                      user: {
+                        $ref: "#/components/schemas/PublicUser"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            400: {
+              description: "Invalid registration data"
+            },
+            409: {
+              description: "User already exists"
+            },
+            500: {
+              description: "Internal server error"
+            }
           }
         }
       },
+
       "/users/login": {
         post: {
           summary: "Login user",
           tags: ["Users"],
+          security: [],
+
           requestBody: {
             required: true,
             content: {
               "application/json": {
                 schema: {
                   type: "object",
+                  required: ["email", "password"],
                   properties: {
-                    email: { type: "string" },
-                    password: { type: "string" }
+                    email: {
+                      type: "string",
+                      format: "email",
+                      example: "prueba@example.com"
+                    },
+                    password: {
+                      type: "string",
+                      format: "password",
+                      example: "ClaveSegura2026!"
+                    }
                   }
                 }
               }
             }
           },
+
           responses: {
-            200: { description: "User logged in" },
-            400: { description: "Invalid credentials" }
+            200: {
+              description: "User logged in successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      token: {
+                        type: "string"
+                      },
+                      user: {
+                        $ref: "#/components/schemas/PublicUser"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            400: {
+              description: "Invalid credentials"
+            },
+            500: {
+              description: "Internal server error"
+            }
           }
         }
       },
+
       "/users/profile": {
         get: {
           summary: "Get user profile",
           tags: ["Users"],
           security: [{ bearerAuth: [] }],
+
           responses: {
-            200: { description: "User profile" },
-            401: { description: "Unauthorized" }
+            200: {
+              description: "User profile"
+            },
+            401: {
+              description: "Unauthorized"
+            },
+            404: {
+              description: "User not found"
+            }
           }
         },
+
         put: {
           summary: "Update user profile",
           tags: ["Users"],
           security: [{ bearerAuth: [] }],
+
           requestBody: {
             required: true,
             content: {
-              "application/json": { schema: { $ref: "#/components/schemas/User" } }
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/User"
+                }
+              }
             }
           },
+
           responses: {
-            200: { description: "User updated" },
-            401: { description: "Unauthorized" }
+            200: {
+              description: "User updated"
+            },
+            400: {
+              description: "Invalid data"
+            },
+            401: {
+              description: "Unauthorized"
+            },
+            404: {
+              description: "User not found"
+            }
           }
         },
+
         delete: {
           summary: "Delete user profile",
           tags: ["Users"],
           security: [{ bearerAuth: [] }],
+
           responses: {
-            200: { description: "User deleted" },
-            401: { description: "Unauthorized" }
+            200: {
+              description: "User deleted"
+            },
+            401: {
+              description: "Unauthorized"
+            },
+            404: {
+              description: "User not found"
+            }
           }
         }
       },
+
       "/trips": {
         post: {
           summary: "Create a new trip",
           tags: ["Trips"],
           security: [{ bearerAuth: [] }],
+
           requestBody: {
             required: true,
             content: {
-              "application/json": { schema: { $ref: "#/components/schemas/Trip" } }
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Trip"
+                }
+              }
             }
           },
+
           responses: {
-            201: { description: "Trip created" },
-            400: { description: "Bad request" }
+            201: {
+              description: "Trip created"
+            },
+            400: {
+              description: "Bad request"
+            },
+            401: {
+              description: "Unauthorized"
+            }
           }
         },
+
         get: {
           summary: "Get all trips for user",
           tags: ["Trips"],
           security: [{ bearerAuth: [] }],
+
           responses: {
-            200: { description: "List of trips" },
-            401: { description: "Unauthorized" }
+            200: {
+              description: "List of trips"
+            },
+            401: {
+              description: "Unauthorized"
+            }
           }
         }
       },
+
       "/trips/{id}": {
         get: {
           summary: "Get a trip by ID",
           tags: ["Trips"],
           security: [{ bearerAuth: [] }],
-          parameters: [{ name: "id", in: "path", required: true }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              schema: { type: "string" }
+            }
+          ],
+
           responses: {
-            200: { description: "Trip found" },
-            404: { description: "Trip not found" }
+            200: {
+              description: "Trip found"
+            },
+            404: {
+              description: "Trip not found"
+            }
           }
         },
+
         put: {
           summary: "Update a trip by ID",
           tags: ["Trips"],
           security: [{ bearerAuth: [] }],
-          parameters: [{ name: "id", in: "path", required: true }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              schema: { type: "string" }
+            }
+          ],
+
           requestBody: {
             required: true,
             content: {
-              "application/json": { schema: { $ref: "#/components/schemas/Trip" } }
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Trip"
+                }
+              }
             }
           },
+
           responses: {
-            200: { description: "Trip updated" },
-            404: { description: "Trip not found" }
+            200: {
+              description: "Trip updated"
+            },
+            404: {
+              description: "Trip not found"
+            }
           }
         },
+
         delete: {
           summary: "Delete a trip by ID",
           tags: ["Trips"],
           security: [{ bearerAuth: [] }],
-          parameters: [{ name: "id", in: "path", required: true }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              schema: { type: "string" }
+            }
+          ],
+
           responses: {
-            200: { description: "Trip deleted" },
-            404: { description: "Trip not found" }
+            200: {
+              description: "Trip deleted"
+            },
+            404: {
+              description: "Trip not found"
+            }
           }
         }
       },
+
       "/destinations": {
         post: {
           summary: "Create a new destination",
           tags: ["Destinations"],
+
           requestBody: {
             required: true,
             content: {
-              "application/json": { schema: { $ref: "#/components/schemas/Destination" } }
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Destination"
+                }
+              }
             }
           },
+
           responses: {
-            201: { description: "Destination created" },
-            400: { description: "Bad request" }
+            201: {
+              description: "Destination created"
+            },
+            400: {
+              description: "Bad request"
+            }
           }
         },
+
         get: {
           summary: "Get all destinations",
           tags: ["Destinations"],
+
           responses: {
-            200: { description: "List of destinations" },
-            500: { description: "Server error" }
+            200: {
+              description: "List of destinations"
+            },
+            500: {
+              description: "Server error"
+            }
           }
         }
       },
+
       "/destinations/{id}": {
         get: {
           summary: "Get a destination by ID",
           tags: ["Destinations"],
-          parameters: [{ name: "id", in: "path", required: true }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              schema: { type: "string" }
+            }
+          ],
+
           responses: {
-            200: { description: "Destination found" },
-            404: { description: "Destination not found" }
+            200: {
+              description: "Destination found"
+            },
+            404: {
+              description: "Destination not found"
+            }
           }
         },
+
         put: {
           summary: "Update a destination",
           tags: ["Destinations"],
-          parameters: [{ name: "id", in: "path", required: true }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              schema: { type: "string" }
+            }
+          ],
+
           requestBody: {
             required: true,
             content: {
-              "application/json": { schema: { $ref: "#/components/schemas/Destination" } }
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Destination"
+                }
+              }
             }
           },
+
           responses: {
-            200: { description: "Destination updated" },
-            404: { description: "Destination not found" }
+            200: {
+              description: "Destination updated"
+            },
+            404: {
+              description: "Destination not found"
+            }
           }
         },
+
         delete: {
           summary: "Delete a destination",
           tags: ["Destinations"],
-          parameters: [{ name: "id", in: "path", required: true }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              schema: { type: "string" }
+            }
+          ],
+
           responses: {
-            200: { description: "Destination deleted" },
-            404: { description: "Destination not found" }
+            200: {
+              description: "Destination deleted"
+            },
+            404: {
+              description: "Destination not found"
+            }
           }
         }
       },
+
       "/journals": {
         post: {
           summary: "Create a new journal entry",
           tags: ["Journals"],
           security: [{ bearerAuth: [] }],
+
           requestBody: {
             required: true,
             content: {
-              "application/json": { schema: { $ref: "#/components/schemas/Journal" } }
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Journal"
+                }
+              }
             }
           },
+
           responses: {
-            201: { description: "Journal created" },
-            400: { description: "Bad request" }
+            201: {
+              description: "Journal created"
+            },
+            400: {
+              description: "Bad request"
+            }
           }
         },
+
         get: {
           summary: "Get all journals for a user",
           tags: ["Journals"],
           security: [{ bearerAuth: [] }],
+
           responses: {
-            200: { description: "List of journals" },
-            401: { description: "Unauthorized" }
+            200: {
+              description: "List of journals"
+            },
+            401: {
+              description: "Unauthorized"
+            }
           }
         }
       },
+
       "/journals/{id}": {
         get: {
           summary: "Get a journal by ID",
           tags: ["Journals"],
           security: [{ bearerAuth: [] }],
-          parameters: [{ name: "id", in: "path", required: true }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              schema: { type: "string" }
+            }
+          ],
+
           responses: {
-            200: { description: "Journal found" },
-            404: { description: "Journal not found" }
+            200: {
+              description: "Journal found"
+            },
+            404: {
+              description: "Journal not found"
+            }
           }
         },
+
         put: {
           summary: "Update a journal entry",
           tags: ["Journals"],
           security: [{ bearerAuth: [] }],
-          parameters: [{ name: "id", in: "path", required: true }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              schema: { type: "string" }
+            }
+          ],
+
           requestBody: {
             required: true,
             content: {
-              "application/json": { schema: { $ref: "#/components/schemas/Journal" } }
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Journal"
+                }
+              }
             }
           },
+
           responses: {
-            200: { description: "Journal updated" },
-            404: { description: "Journal not found" }
+            200: {
+              description: "Journal updated"
+            },
+            404: {
+              description: "Journal not found"
+            }
           }
         },
+
         delete: {
           summary: "Delete a journal entry",
           tags: ["Journals"],
           security: [{ bearerAuth: [] }],
-          parameters: [{ name: "id", in: "path", required: true }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              schema: { type: "string" }
+            }
+          ],
+
           responses: {
-            200: { description: "Journal deleted" },
-            404: { description: "Journal not found" }
+            200: {
+              description: "Journal deleted"
+            },
+            404: {
+              description: "Journal not found"
+            }
           }
         }
       }
     }
   },
-  apis: []
-}
 
-const swaggerSpec = swaggerJSDoc(options)
-export default swaggerSpec
+  apis: []
+};
+
+const swaggerSpec = swaggerJSDoc(options);
+
+export default swaggerSpec;
